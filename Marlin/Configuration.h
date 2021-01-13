@@ -131,7 +131,7 @@
 
 // Choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_ET4
+  #define MOTHERBOARD BOARD_ANET_ET4P
 #endif
 
 // Name displayed in the LCD "Ready" message and Info menu
@@ -1315,8 +1315,8 @@
  * these options to restore the prior leveling state or to always enable
  * leveling immediately after G28.
  */
-//#define RESTORE_LEVELING_AFTER_G28
-//#define ENABLE_LEVELING_AFTER_G28
+#define RESTORE_LEVELING_AFTER_G28
+// #define ENABLE_LEVELING_AFTER_G28
 
 /**
  * Auto-leveling needs preheating
@@ -1374,7 +1374,7 @@
 
     // Beyond the probed grid, continue the implied tilt?
     // Default is to maintain the height of the nearest edge.
-    //#define EXTRAPOLATE_BEYOND_GRID
+    // #define EXTRAPOLATE_BEYOND_GRID
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
@@ -2392,7 +2392,7 @@
  */
 //#define TFT_CLASSIC_UI
 #define TFT_COLOR_UI
-//#define TFT_LVGL_UI
+// #define TFT_LVGL_UI
 
 /**
  * TFT Rotation. Set to one of the following values:
@@ -2402,7 +2402,7 @@
  *   TFT_ROTATE_270, TFT_ROTATE_270_MIRROR_X, TFT_ROTATE_270_MIRROR_Y,
  *   TFT_MIRROR_X, TFT_MIRROR_Y, TFT_NO_ROTATION
  */
-#define TFT_ROTATION TFT_MIRROR_Y     // ET4
+// #define TFT_ROTATION TFT_MIRROR_Y     // ET4
 //#define TFT_ROTATION TFT_ROTATE_180   // ET5
 
 //=============================================================================
@@ -2425,12 +2425,18 @@
   #define TOUCH_SCREEN_CALIBRATION
 
   // ET4
-  #define XPT2046_X_CALIBRATION -11838
-  #define XPT2046_Y_CALIBRATION   8776
-  #define XPT2046_X_OFFSET         333
-  #define XPT2046_Y_OFFSET         -17
-  #define XPT2046_ORIENTATION TOUCH_PORTRAIT
+  // #define XPT2046_X_CALIBRATION -11838
+  // #define XPT2046_Y_CALIBRATION   8776
+  // #define XPT2046_X_OFFSET         333
+  // #define XPT2046_Y_OFFSET         -17
+  // #define XPT2046_ORIENTATION TOUCH_PORTRAIT
 
+// DEFAULT
+  //#define XPT2046_X_CALIBRATION 12316
+  //#define XPT2046_Y_CALIBRATION -8981
+  //#define XPT2046_X_OFFSET        -43
+  //#define XPT2046_Y_OFFSET        257
+  
   // ET5
   /*
   #define XPT2046_X_CALIBRATION 17964
