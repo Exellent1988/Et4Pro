@@ -51,6 +51,11 @@ XPT2046 touch;
   #include "../../../../feature/powerloss.h"
 #endif
 
+#if ENABLED(TOUCH_SCREEN_CALIBRATION)
+  #include "../../../tft_io/touch_calibration.h"
+  #include "draw_touch_calibration.h"
+#endif
+
 #include <SPI.h>
 
 #ifndef TFT_WIDTH
@@ -72,14 +77,15 @@ lv_group_t*  g;
 uint16_t DeviceCode = 0x9488;
 extern uint8_t sel_id;
 
-extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
+uint8_t bmp_public_buf[14 * 1024];
+uint8_t public_buf[513];
 
-uint8_t bmp_public_buf[17 * 1024];
+extern bool flash_preview_begin, default_preview_flg, gcode_preview_over;
 
 void SysTick_Callback() {
   lv_tick_inc(1);
   print_time_count();
-  #if ENABLED(USE_WIFI_FUNCTION)
+  #if ENABLED(MKS_WIFI_MODULE)
     if (tips_disp.timer == TIPS_TIMER_START)
       tips_disp.timer_count++;
   #endif
@@ -104,13 +110,9 @@ void SysTick_Callback() {
   }
 }
 
-extern uint8_t bmp_public_buf[17 * 1024];
-
 void tft_lvgl_init() {
 
-  //uint16_t test_id=0;
   W25QXX.init(SPI_QUARTER_SPEED);
-  //test_id=W25QXX.W25QXX_ReadID();
 
   gCfgItems_init();
   ui_cfg_init();
@@ -124,7 +126,6 @@ void tft_lvgl_init() {
 
   watchdog_refresh();     // LVGL init takes time
 
-  //spi_flash_read_test();
   #if ENABLED(SDSUPPORT)
     UpdateAssets();
     watchdog_refresh();   // LVGL init takes time
@@ -136,7 +137,7 @@ void tft_lvgl_init() {
 
   lv_init();
 
-  lv_disp_buf_init(&disp_buf, bmp_public_buf, nullptr, LV_HOR_RES_MAX * 18); /*Initialize the display buffer*/
+  lv_disp_buf_init(&disp_buf, bmp_public_buf, nullptr, LV_HOR_RES_MAX * 14); /*Initialize the display buffer*/
 
   lv_disp_drv_t disp_drv;     /*Descriptor of a display driver*/
   lv_disp_drv_init(&disp_drv);    /*Basic initialization*/
@@ -211,7 +212,9 @@ void tft_lvgl_init() {
     }
   #endif
 
-  if (ready) lv_draw_ready_print();
+  if (ready) {
+    lv_draw_ready_print();
+  }
 
   if (mks_test_flag == 0x1E)
     mks_gpio_test();
@@ -240,17 +243,22 @@ unsigned int getTickDiff(unsigned int curTick, unsigned int lastTick) {
 static bool get_point(int16_t *x, int16_t *y) {
   bool is_touched = touch.getRawPoint(x, y);
 
-  if (is_touched) {
-    *x = int16_t((int32_t(*x) * XPT2046_X_CALIBRATION) >> 16) + XPT2046_X_OFFSET;
-    *y = int16_t((int32_t(*y) * XPT2046_Y_CALIBRATION) >> 16) + XPT2046_Y_OFFSET;
-  }
+  if (!is_touched) return false;
 
-  #if (TFT_ROTATION & TFT_ROTATE_180)
-    *x = int16_t((TFT_WIDTH) - (int)(*x));
-    *y = int16_t((TFT_HEIGHT) - (int)(*y));
+  #if ENABLED(TOUCH_SCREEN_CALIBRATION)
+    const calibrationState state = touch_calibration.get_calibration_state();
+    if (state >= CALIBRATION_TOP_LEFT && state <= CALIBRATION_BOTTOM_RIGHT) {
+      if (touch_calibration.handleTouch(*x, *y)) lv_update_touch_calibration_screen();
+      return false;
+    }
+    *x = int16_t((int32_t(*x) * touch_calibration.calibration.x) >> 16) + touch_calibration.calibration.offset_x;
+    *y = int16_t((int32_t(*y) * touch_calibration.calibration.y) >> 16) + touch_calibration.calibration.offset_y;
+  #else
+    *x = int16_t((int32_t(*x) * TOUCH_CALIBRATION_X) >> 16) + TOUCH_OFFSET_X;
+    *y = int16_t((int32_t(*y) * TOUCH_CALIBRATION_Y) >> 16) + TOUCH_OFFSET_Y;
   #endif
 
-  return is_touched;
+  return true;
 }
 
 bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
@@ -261,11 +269,6 @@ bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
 
   tmpTime = millis();
   diffTime = getTickDiff(tmpTime, touch_time1);
-  /*Save the state and save the pressed coordinate*/
-  //data->state = TOUCH_PressValid(last_x, last_y) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
-  //if (data->state == LV_INDEV_STATE_PR)  ADS7843_Rd_Addata((u16 *)&last_x, (u16 *)&last_y);
-  //touchpad_get_xy(&last_x, &last_y);
-  /*Save the pressed coordinates and the state*/
   if (diffTime > 20) {
     if (get_point(&last_x, &last_y)) {
 
@@ -273,7 +276,6 @@ bool my_touchpad_read(lv_indev_drv_t * indev_driver, lv_indev_data_t * data) {
       data->state = LV_INDEV_STATE_PR;
 
       // Set the coordinates (if released use the last-pressed coordinates)
-
       data->point.x = last_x;
       data->point.y = last_y;
 
@@ -358,9 +360,8 @@ lv_fs_res_t spi_flash_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p
 
 //sd
 char *cur_namefff;
-uint32_t sd_read_base_addr = 0,sd_read_addr_offset = 0;
+uint32_t sd_read_base_addr = 0, sd_read_addr_offset = 0, small_image_size = 409;
 lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_fs_mode_t mode) {
-  //cur_namefff = strrchr(path, '/');
   char name_buf[100];
   *name_buf = '/';
   strcpy(name_buf + 1, path);
@@ -368,7 +369,12 @@ lv_fs_res_t sd_open_cb (lv_fs_drv_t * drv, void * file_p, const char * path, lv_
   if (temp) strcpy(temp, ".GCO");
   sd_read_base_addr = lv_open_gcode_file((char *)name_buf);
   sd_read_addr_offset = sd_read_base_addr;
-  if (sd_read_addr_offset == 0) return LV_FS_RES_NOT_EX;
+  if (sd_read_addr_offset == UINT32_MAX) return LV_FS_RES_NOT_EX;
+  // find small image size
+  card.read(public_buf, 512);
+  public_buf[511] = '\0';
+  char* eol = strpbrk((const char*)public_buf, "\n\r");
+  small_image_size = (uintptr_t)eol - (uintptr_t)((uint32_t *)(&public_buf[0])) + 1;
   return LV_FS_RES_OK;
 }
 
@@ -387,21 +393,20 @@ lv_fs_res_t sd_read_cb (lv_fs_drv_t * drv, void * file_p, void * buf, uint32_t b
   else if (btr == 4) {
     uint8_t header_pic[4] = { 0x04, 0x90, 0x81, 0x0C };
     memcpy(buf, header_pic, 4);
-    //pic_read_addr_offset += 4;
     *br = 4;
   }
   return LV_FS_RES_OK;
 }
 
 lv_fs_res_t sd_seek_cb(lv_fs_drv_t * drv, void * file_p, uint32_t pos) {
-  sd_read_addr_offset = sd_read_base_addr + (pos - 4) / 200 * 409;
+  sd_read_addr_offset = sd_read_base_addr + (pos - 4) / 200 * small_image_size;
   lv_gcode_file_seek(sd_read_addr_offset);
   return LV_FS_RES_OK;
 }
 
 lv_fs_res_t sd_tell_cb(lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p) {
   if (sd_read_addr_offset) *pos_p = 0;
-  else *pos_p = (sd_read_addr_offset - sd_read_base_addr) / 409 * 200 + 4;
+  else *pos_p = (sd_read_addr_offset - sd_read_base_addr) / small_image_size * 200 + 4;
   return LV_FS_RES_OK;
 }
 
@@ -435,9 +440,6 @@ void lv_encoder_pin_init() {
 }
 
 #if 1 // HAS_ENCODER_ACTION
-
-  //static const int8_t encoderDirection = 1;
-  //static int16_t enc_Direction;
   void lv_update_encoder() {
     static uint32_t encoder_time1;
     uint32_t tmpTime, diffTime = 0;
@@ -450,26 +452,16 @@ void lv_encoder_pin_init() {
         #if ANY_BUTTON(EN1, EN2, ENC, BACK)
 
           uint8_t newbutton = 0;
-
-          #if BUTTON_EXISTS(EN1)
-            if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
-          #endif
-          #if BUTTON_EXISTS(EN2)
-            if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
-          #endif
-          #if BUTTON_EXISTS(ENC)
-            if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-          #endif
-          #if BUTTON_EXISTS(BACK)
-            if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
-          #endif
+          if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
+          if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
+          if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+          if (BUTTON_PRESSED(BACK)) newbutton |= EN_D;
 
         #else
 
           constexpr uint8_t newbutton = 0;
 
         #endif
-
 
         static uint8_t buttons = 0;
         buttons = newbutton;
@@ -478,9 +470,6 @@ void lv_encoder_pin_init() {
         #define encrot0 0
         #define encrot1 1
         #define encrot2 2
-
-        // Manage encoder rotation
-        //#define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: enc_Direction += encoderDirection; break; case _E2: enc_Direction -= encoderDirection; }
 
         uint8_t enc = 0;
         if (buttons & EN_A) enc |= B01;
@@ -506,7 +495,6 @@ void lv_encoder_pin_init() {
         const uint8_t enc_c = (buttons & EN_C) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
         if (enc_c != last_button_state) {
           state = enc_c ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
-
           last_button_state = enc_c;
         }
 

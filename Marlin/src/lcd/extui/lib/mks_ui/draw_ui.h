@@ -28,7 +28,7 @@
 
 // the colors of the last MKS Ui
 #undef LV_COLOR_BACKGROUND
-#define LV_COLOR_BACKGROUND LV_COLOR_MAKE(0x1A, 0x1A, 0x1A) // LV_COLOR_MAKE(0x00, 0x00, 0x00)
+#define LV_COLOR_BACKGROUND LV_COLOR_MAKE(0x1A, 0x1A, 0x1A)
 
 #define TFT_LV_PARA_BACK_BODY_COLOR  LV_COLOR_MAKE(0x4A, 0x52, 0xFF)
 
@@ -76,7 +76,7 @@
 #include "draw_keyboard.h"
 #include "draw_encoder_settings.h"
 
-#if ENABLED(USE_WIFI_FUNCTION)
+#if ENABLED(MKS_WIFI_MODULE)
   #include "wifiSerial.h"
   #include "wifi_module.h"
   #include "wifi_upload.h"
@@ -313,7 +313,8 @@ typedef enum {
   EEPROM_SETTINGS_UI,
   WIFI_SETTINGS_UI,
   HOMING_SENSITIVITY_UI,
-  ENCODER_SETTINGS_UI
+  ENCODER_SETTINGS_UI,
+  TOUCH_CALIBRATION_UI
 } DISP_STATE;
 
 typedef struct {
@@ -377,14 +378,12 @@ typedef enum {
   level_pos_x4,
   level_pos_y4,
   level_pos_x5,
-  level_pos_y5
+  level_pos_y5,
   #if HAS_BED_PROBE
-    ,
     x_offset,
     y_offset,
-    z_offset
+    z_offset,
   #endif
-  ,
   load_length,
   load_speed,
   unload_length,

@@ -27,11 +27,11 @@
 #include <lv_conf.h>
 
 #include "../../../../gcode/gcode.h"
-#include "../../../../module/temperature.h"
 #include "../../../../module/planner.h"
 #include "../../../../module/motion.h"
 #include "../../../../sd/cardreader.h"
 #include "../../../../inc/MarlinConfig.h"
+#include "../../../../MarlinCore.h"
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
@@ -69,9 +69,6 @@ void printer_state_polling() {
         uiCfg.print_state = PAUSED;
         uiCfg.current_e_position_bak = current_position.e;
 
-        // #if ENABLED(POWER_LOSS_RECOVERY)
-        //  if (recovery.enabled) recovery.save(true);
-        // #endif
         gCfgItems.pause_reprint = true;
         update_spi_flash();
       }
@@ -95,7 +92,7 @@ void printer_state_polling() {
         gcode.process_subcommands_now(public_buf_l);
         gcode.process_subcommands_now_P(PSTR("G90"));
       }
-      gcode.process_subcommands_now_P(PSTR("M24"));
+      gcode.process_subcommands_now_P(M24_STR);
       uiCfg.print_state = WORKING;
       start_print_time();
 
@@ -147,7 +144,7 @@ void printer_state_polling() {
   if (uiCfg.print_state == WORKING)
     filament_check();
 
-  TERN_(USE_WIFI_FUNCTION, wifi_looping());
+  TERN_(MKS_WIFI_MODULE, wifi_looping());
 }
 
 void filament_pin_setup() {
