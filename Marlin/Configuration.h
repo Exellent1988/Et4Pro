@@ -498,9 +498,9 @@
     //#define DEFAULT_Kd 50.00
 
     // ET4 Autotune PID results
-    #define DEFAULT_Kp  18.62
-    #define DEFAULT_Ki   1.38
-    #define DEFAULT_Kd  62.92
+    #define DEFAULT_Kp  30.32
+    #define DEFAULT_Ki   5.88
+    #define DEFAULT_Kd  39.12
   #endif
 #endif // PIDTEMP
 
@@ -1270,7 +1270,7 @@
   // After a runout is detected, continue printing this length of filament
   // before executing the runout script. Useful for a sensor at the end of
   // a feed tube. Requires 4 bytes SRAM per sensor, plus 4 bytes overhead.
-  //#define FILAMENT_RUNOUT_DISTANCE_MM 25
+  #define FILAMENT_RUNOUT_DISTANCE_MM 15
 
   #ifdef FILAMENT_RUNOUT_DISTANCE_MM
     // Enable this option to use an encoder disc that toggles the runout pin
@@ -1609,7 +1609,7 @@
 // Preheat Constants
 #define PREHEAT_1_LABEL       "PLA"
 #define PREHEAT_1_TEMP_HOTEND 210
-#define PREHEAT_1_TEMP_BED     70
+#define PREHEAT_1_TEMP_BED     60
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_LABEL       "PETG"
