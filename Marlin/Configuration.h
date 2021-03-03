@@ -498,9 +498,14 @@
     //#define DEFAULT_Kd 50.00
 
     // ET4 Autotune PID results
-      #define DEFAULT_Kp 30.32
-      #define DEFAULT_Ki 5.88
-      #define DEFAULT_Kd 39.12
+      // #define DEFAULT_Kp 30.32
+      // #define DEFAULT_Ki 5.88
+      // #define DEFAULT_Kd 39.12
+     // ET4 Autotune PID results NEW
+
+      #define DEFAULT_Kp 34.09
+      #define DEFAULT_Ki 3.80
+      #define DEFAULT_Kd 76.36
   #endif
 #endif // PIDTEMP
 
