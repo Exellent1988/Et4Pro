@@ -110,12 +110,11 @@
     void dump_delay_accuracy_check() {
       auto report_call_time = [](FSTR_P const name, FSTR_P const unit, const uint32_t cycles, const uint32_t total, const bool do_flush=true) {
         SERIAL_ECHOPGM("Calling ");
-        SERIAL_ECHOF(name);
+        SERIAL_ECHOPGM_P(name);
         SERIAL_ECHOLNPGM(" for ", cycles);
-        SERIAL_ECHOF(unit);
+        SERIAL_ECHOPGM_P(unit);
         SERIAL_ECHOLNPGM(" took: ", total);
-        SERIAL_CHAR(' ');
-        SERIAL_ECHOF(unit);
+        SERIAL_ECHOPGM_P(unit);
         if (do_flush) SERIAL_FLUSHTX();
       };
 

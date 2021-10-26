@@ -365,7 +365,7 @@
 
     #endif
 
-    #if IS_U8GLIB_ST7920
+    #if ENABLED(U8GLIB_ST7920)
       #define BOARD_ST7920_DELAY_1           125
       #define BOARD_ST7920_DELAY_2           125
       #define BOARD_ST7920_DELAY_3           125

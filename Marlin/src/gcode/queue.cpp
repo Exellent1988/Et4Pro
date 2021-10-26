@@ -126,7 +126,7 @@ bool GCodeQueue::RingBuffer::enqueue(const char *cmd, bool skip_ok/*=true*/
  * Enqueue with Serial Echo
  * Return true if the command was consumed
  */
-bool GCodeQueue::enqueue_one(const char * const cmd) {
+bool GCodeQueue::enqueue_one(const char *cmd) {
   //SERIAL_ECHOLNPGM("enqueue_one(\"", cmd, "\")");
 
   if (*cmd == 0 || ISEOL(*cmd)) return true;
@@ -305,7 +305,7 @@ inline int read_serial(const serial_index_t index) { return SERIAL_IMPL.read(ind
 void GCodeQueue::gcode_line_error(FSTR_P const ferr, const serial_index_t serial_ind) {
   PORT_REDIRECT(SERIAL_PORTMASK(serial_ind)); // Reply to the serial port that sent the command
   SERIAL_ERROR_START();
-  SERIAL_ECHOLNF(ferr, serial_state[serial_ind.index].last_N);
+  SERIAL_ECHOLNPGM_P(err, serial_state[serial_ind.index].last_N);
   while (read_serial(serial_ind) != -1) { /* nada */ } // Clear out the RX buffer. Why don't use flush here ?
   flush_and_request_resend(serial_ind);
   serial_state[serial_ind.index].count = 0;
@@ -693,8 +693,8 @@ void GCodeQueue::advance() {
 
   void GCodeQueue::report_buffer_statistics() {
     SERIAL_ECHOLNPGM("D576"
-      " P:", planner.moves_free(),         " ", -planner_buffer_underruns, " (", max_planner_buffer_empty_duration, ")"
-      " B:", BUFSIZE - ring_buffer.length, " ", -command_buffer_underruns, " (", max_command_buffer_empty_duration, ")"
+      " P:", planner.moves_free(),         " ", -queue.planner_buffer_underruns, " (", queue.max_planner_buffer_empty_duration, ")"
+      " B:", BUFSIZE - ring_buffer.length, " ", -queue.command_buffer_underruns, " (", queue.max_command_buffer_empty_duration, ")"
     );
     command_buffer_underruns = planner_buffer_underruns = 0;
     max_command_buffer_empty_duration = max_planner_buffer_empty_duration = 0;
@@ -717,8 +717,8 @@ void GCodeQueue::advance() {
       NOLESS(max_planner_buffer_empty_duration, planner_buffer_empty_duration); // if it's longer than the currently tracked max duration, replace it
     }
 
-    if (auto_buffer_report_interval && ELAPSED(ms, next_buffer_report_ms)) {
-      next_buffer_report_ms = ms + 1000UL * auto_buffer_report_interval;
+    if (queue.auto_buffer_report_interval && ELAPSED(ms, queue.next_buffer_report_ms)) {
+      queue.next_buffer_report_ms = ms + 1000UL * queue.auto_buffer_report_interval;
       PORT_REDIRECT(SERIAL_BOTH);
       report_buffer_statistics();
       PORT_RESTORE();

@@ -373,7 +373,7 @@ void PrintJobRecovery::resume() {
   // establish the current position as best we can.
   //
 
-  gcode.process_subcommands_now(F("G92.9E0")); // Reset E to 0
+  gcode.process_subcommands_now_P(PSTR("G92.9E0")); // Reset E to 0
 
   #if Z_HOME_TO_MAX
 
@@ -410,7 +410,7 @@ void PrintJobRecovery::resume() {
     }
 
     // Home XY with no Z raise, and also home Z here if Z isn't homing down below.
-    gcode.process_subcommands_now(F("G28R0" TERN_(HOME_XY_ONLY, "XY"))); // No raise during G28
+    gcode.process_subcommands_now_P(PSTR("G28R0" TERN_(HOME_XY_ONLY, "XY"))); // No raise during G28
 
   #endif
 
@@ -513,7 +513,7 @@ void PrintJobRecovery::resume() {
 
   // Un-retract if there was a retract at outage
   #if ENABLED(BACKUP_POWER_SUPPLY) && POWER_LOSS_RETRACT_LEN > 0
-    gcode.process_subcommands_now(F("G1E" STRINGIFY(POWER_LOSS_RETRACT_LEN) "F3000"));
+    gcode.process_subcommands_now_P(PSTR("G1E" STRINGIFY(POWER_LOSS_RETRACT_LEN) "F3000"));
   #endif
 
   // Additional purge on resume if configured
@@ -575,8 +575,8 @@ void PrintJobRecovery::resume() {
 
 #if ENABLED(DEBUG_POWER_LOSS_RECOVERY)
 
-  void PrintJobRecovery::debug(FSTR_P const prefix) {
-    DEBUG_ECHOF(prefix);
+  void PrintJobRecovery::debug(PGM_P const prefix) {
+    DEBUG_ECHOPGM_P(prefix);
     DEBUG_ECHOLNPGM(" Job Recovery Info...\nvalid_head:", info.valid_head, " valid_foot:", info.valid_foot);
     if (info.valid_head) {
       if (info.valid_head == info.valid_foot) {

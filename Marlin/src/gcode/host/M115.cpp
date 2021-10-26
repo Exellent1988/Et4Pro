@@ -88,6 +88,9 @@ void GcodeSuite::M115() {
     // AUTOREPORT_POS (M154)
     cap_line(F("AUTOREPORT_POS"), ENABLED(AUTO_REPORT_POSITION));
 
+    // AUTOREPORT_POS (M154)
+    cap_line(PSTR("AUTOREPORT_POS"), ENABLED(AUTO_REPORT_POSITION));
+
     // AUTOREPORT_TEMP (M155)
     cap_line(F("AUTOREPORT_TEMP"), ENABLED(AUTO_REPORT_TEMPERATURES));
 
@@ -124,6 +127,9 @@ void GcodeSuite::M115() {
 
     // HOST ACTION COMMANDS (paused, resume, resumed, cancel, etc.)
     cap_line(F("HOST_ACTION_COMMANDS"), ENABLED(HOST_ACTION_COMMANDS));
+
+    // HOST ACTION COMMANDS (paused, resume, resumed, cancel, etc.)
+    cap_line(PSTR("HOST_ACTION_COMMANDS"), ENABLED(HOST_ACTION_COMMANDS));
 
     // PROMPT SUPPORT (M876)
     cap_line(F("PROMPT_SUPPORT"), ENABLED(HOST_PROMPT_SUPPORT));

@@ -281,7 +281,7 @@ inline void free_memory_pool_report(char * const start_free_memory, const int32_
     "\nMemory Corruption detected in free memory area."
     "\nLargest free block is ", max_cnt, " bytes at ", hex_address(max_addr)
   );
-  SERIAL_ECHOLNPGM("check_for_free_memory_corruption() = ", check_for_free_memory_corruption(F("M100 F ")));
+  SERIAL_ECHOLNPGM("check_for_free_memory_corruption() = ", check_for_free_memory_corruption(PSTR("M100 F ")));
 }
 
 #if ENABLED(M100_FREE_MEMORY_CORRUPTOR)

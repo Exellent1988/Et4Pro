@@ -69,12 +69,9 @@ void GcodeSuite::M0_M1() {
     if (parser.string_arg)
       ExtUI::onUserConfirmRequired(parser.string_arg); // String in an SRAM buffer
     else
-      ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_USERWAIT));
+      ExtUI::onUserConfirmRequired_P(GET_TEXT(MSG_USERWAIT));
   #elif ENABLED(DWIN_CREALITY_LCD_ENHANCED)
-    if (parser.string_arg)
-      DWIN_Popup_Confirm(ICON_BLTouch, parser.string_arg, GET_TEXT_F(MSG_USERWAIT));
-    else
-      DWIN_Popup_Confirm(ICON_BLTouch, GET_TEXT_F(MSG_STOPPED), GET_TEXT_F(MSG_USERWAIT));
+    DWIN_Popup_Confirm(ICON_BLTouch, parser.string_arg ?: GET_TEXT(MSG_STOPPED), GET_TEXT(MSG_USERWAIT));
   #else
 
     if (parser.string_arg) {

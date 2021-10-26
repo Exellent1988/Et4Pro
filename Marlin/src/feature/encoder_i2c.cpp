@@ -153,7 +153,7 @@ void I2CPositionEncoder::update() {
 
     #ifdef I2CPE_ERR_THRESH_ABORT
       if (ABS(error) > I2CPE_ERR_THRESH_ABORT * planner.settings.axis_steps_per_mm[encoderAxis]) {
-        //kill(F("Significant Error"));
+        //kill(PSTR("Significant Error"));
         SERIAL_ECHOLNPGM("Axis error over threshold, aborting!", error);
         safe_delay(5000);
       }

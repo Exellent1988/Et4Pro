@@ -399,9 +399,9 @@ static void center_text_P(PGM_P pstart, uint8_t y) {
     uint8_t indent = (LCD_WIDTH - 8) / 2;
     // symbols 217 (bottom right corner) and 218 (top left corner) are using for letters in some languages
     // and they should be moved to beginning ASCII table as special symbols
-    lcd.setCursor(indent, 0); lcd.write(TLC); lcd_put_u8str(F("------"));  lcd.write(TRC);
-    lcd.setCursor(indent, 1); lcd.write(LR);  lcd_put_u8str(F("Marlin"));  lcd.write(LR);
-    lcd.setCursor(indent, 2); lcd.write(BLC); lcd_put_u8str(F("------"));  lcd.write(BRC);
+    lcd.setCursor(indent, 0); lcd.write(TLC); lcd_put_u8str_P(PSTR("------"));  lcd.write(TRC);
+    lcd.setCursor(indent, 1); lcd.write(LR);  lcd_put_u8str_P(PSTR("Marlin"));  lcd.write(LR);
+    lcd.setCursor(indent, 2); lcd.write(BLC); lcd_put_u8str_P(PSTR("------"));  lcd.write(BRC);
     center_text_P(PSTR(SHORT_BUILD_VERSION), 3);
     center_text_P(PSTR(MARLIN_WEBSITE_URL), 4);
     picBits = ICON_LOGO;
@@ -515,7 +515,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
   FORCE_INLINE void _draw_cooler_status(const bool blink) {
     const celsius_t t2 = thermalManager.degTargetCooler();
 
-    lcd.setCursor(0, 5); lcd_put_u8str(F("COOL"));
+    lcd.setCursor(0, 5); lcd_put_u8str_P(PSTR("COOL"));
     lcd.setCursor(1, 6); lcd_put_u8str(i16tostr3rj(thermalManager.wholeDegCooler()));
     lcd.setCursor(1, 7);
 
@@ -543,7 +543,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 #if ENABLED(LASER_COOLANT_FLOW_METER)
 
   FORCE_INLINE void _draw_flowmeter_status() {
-    lcd.setCursor(5, 5); lcd_put_u8str(F("FLOW"));
+    lcd.setCursor(5, 5); lcd_put_u8str_P(PSTR("FLOW"));
     lcd.setCursor(7, 6); lcd_put_wchar('L');
     lcd.setCursor(6, 7); lcd_put_u8str(ftostr11ns(cooler.flowrate));
 
@@ -556,7 +556,7 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 #if ENABLED(I2C_AMMETER)
 
   FORCE_INLINE void _draw_ammeter_status() {
-    lcd.setCursor(10, 5); lcd_put_u8str(F("ILAZ"));
+    lcd.setCursor(10, 5); lcd_put_u8str_P(PSTR("ILAZ"));
     ammeter.read();
     lcd.setCursor(11, 6);
     if (ammeter.current <= 0.999f)
@@ -580,9 +580,9 @@ FORCE_INLINE void _draw_axis_value(const AxisEnum axis, const char *value, const
 #if HAS_CUTTER
 
   FORCE_INLINE void _draw_cutter_status() {
-    lcd.setCursor(15, 5);  lcd_put_u8str(F("CUTT"));
+    lcd.setCursor(15, 5);  lcd_put_u8str_P(PSTR("CUTT"));
     #if CUTTER_UNIT_IS(RPM)
-      lcd.setCursor(16, 6);  lcd_put_u8str(F("RPM"));
+      lcd.setCursor(16, 6);  lcd_put_u8str_P(PSTR("RPM"));
       lcd.setCursor(15, 7);  lcd_put_u8str(ftostr31ns(float(cutter.unitPower) / 1000));
       lcd_put_wchar('K');
     #elif CUTTER_UNIT_IS(PERCENT)
@@ -895,7 +895,7 @@ void MarlinUI::draw_status_screen() {
       #else
         #define FANX 17
       #endif
-      lcd.setCursor(FANX, 5); lcd_put_u8str(F("FAN"));
+      lcd.setCursor(FANX, 5); lcd_put_u8str_P(PSTR("FAN"));
       lcd.setCursor(FANX + 1, 6); lcd.write('%');
       lcd.setCursor(FANX, 7);
       lcd.print(i16tostr3rj(per));

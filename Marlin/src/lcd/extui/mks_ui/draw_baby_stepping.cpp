@@ -93,7 +93,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
       gcode.process_subcommands_now(F(baby_buf));
       has_adjust_z = 1;
       break;
-    case ID_BABYSTEP_DIST:
+    case ID_BABY_STEP_DIST:
       if (ABS((int)(100 * babystep_dist)) == 1)
         babystep_dist = 0.05;
       else if (ABS((int)(100 * babystep_dist)) == 5)

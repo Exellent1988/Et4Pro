@@ -181,20 +181,8 @@ void SERIAL_PRINTLN(T x, PrintBase y) { SERIAL_IMPL.println(x, y); }
 inline void SERIAL_FLUSH()    { SERIAL_IMPL.flush(); }
 inline void SERIAL_FLUSHTX()  { SERIAL_IMPL.flushTX(); }
 
-// Serial echo and error prefixes
-#define SERIAL_ECHO_START()           serial_echo_start()
-#define SERIAL_ERROR_START()          serial_error_start()
-
-// Serial end-of-line
-#define SERIAL_EOL()                  SERIAL_CHAR('\n')
-
-// Print a single PROGMEM, PGM_P, or PSTR() string.
-void serial_print_P(PGM_P str);
-inline void serial_println_P(PGM_P str) { serial_print_P(str); SERIAL_EOL(); }
-
-// Print a single FSTR_P, F(), or FPSTR() string.
-inline void serial_print(FSTR_P const fstr) { serial_print_P(FTOP(fstr)); }
-inline void serial_println(FSTR_P const fstr) { serial_println_P(FTOP(fstr)); }
+// Print a single PROGMEM string to serial
+void serialprintPGM(PGM_P str);
 
 //
 // SERIAL_ECHOPGM... macros are used to output string-value pairs.
@@ -204,8 +192,8 @@ inline void serial_println(FSTR_P const fstr) { serial_println_P(FTOP(fstr)); }
 #define __SEP_N(N,V...)           _SEP_##N(V)
 #define _SEP_N(N,V...)            __SEP_N(N,V)
 #define _SEP_N_REF()              _SEP_N
-#define _SEP_1(s)                 serial_print(F(s));
-#define _SEP_2(s,v)               serial_echopair(F(s),v);
+#define _SEP_1(s)                 serialprintPGM(PSTR(s));
+#define _SEP_2(s,v)               serial_echopair_PGM(PSTR(s),v);
 #define _SEP_3(s,v,V...)          _SEP_2(s,v); DEFER2(_SEP_N_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOPGM(V...)      do{ EVAL(_SEP_N(TWO_ARGS(V),V)); }while(0)
 
@@ -213,8 +201,8 @@ inline void serial_println(FSTR_P const fstr) { serial_println_P(FTOP(fstr)); }
 #define __SELP_N(N,V...)          _SELP_##N(V)
 #define _SELP_N(N,V...)           __SELP_N(N,V)
 #define _SELP_N_REF()             _SELP_N
-#define _SELP_1(s)                serial_print(F(s "\n"));
-#define _SELP_2(s,v)              serial_echolnpair(F(s),v);
+#define _SELP_1(s)                serialprintPGM(PSTR(s "\n"));
+#define _SELP_2(s,v)              serial_echopair_PGM(PSTR(s),v); SERIAL_EOL();
 #define _SELP_3(s,v,V...)         _SEP_2(s,v); DEFER2(_SELP_N_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOLNPGM(V...)    do{ EVAL(_SELP_N(TWO_ARGS(V),V)); }while(0)
 
@@ -222,8 +210,8 @@ inline void serial_println(FSTR_P const fstr) { serial_println_P(FTOP(fstr)); }
 #define __SEP_N_P(N,V...)         _SEP_##N##_P(V)
 #define _SEP_N_P(N,V...)          __SEP_N_P(N,V)
 #define _SEP_N_P_REF()            _SEP_N_P
-#define _SEP_1_P(p)               serial_print_P(p);
-#define _SEP_2_P(p,v)             serial_echopair_P(p,v);
+#define _SEP_1_P(p)               serialprintPGM(p);
+#define _SEP_2_P(p,v)             serial_echopair_PGM(p,v);
 #define _SEP_3_P(p,v,V...)        _SEP_2_P(p,v); DEFER2(_SEP_N_P_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOPGM_P(V...)    do{ EVAL(_SEP_N_P(TWO_ARGS(V),V)); }while(0)
 
@@ -231,28 +219,10 @@ inline void serial_println(FSTR_P const fstr) { serial_println_P(FTOP(fstr)); }
 #define __SELP_N_P(N,V...)        _SELP_##N##_P(V)
 #define _SELP_N_P(N,V...)         __SELP_N_P(N,V)
 #define _SELP_N_P_REF()           _SELP_N_P
-#define _SELP_1_P(p)              serial_println_P(p)
-#define _SELP_2_P(p,v)            serial_echolnpair_P(p,v)
+#define _SELP_1_P(p)              { serialprintPGM(p); SERIAL_EOL(); }
+#define _SELP_2_P(p,v)            { serial_echopair_PGM(p,v); SERIAL_EOL(); }
 #define _SELP_3_P(p,v,V...)       { _SEP_2_P(p,v); DEFER2(_SELP_N_P_REF)()(TWO_ARGS(V),V); }
 #define SERIAL_ECHOLNPGM_P(V...)  do{ EVAL(_SELP_N_P(TWO_ARGS(V),V)); }while(0)
-
-// Print up to 20 pairs of values. Odd elements must be FSTR_P, F(), or FPSTR().
-#define __SEP_N_F(N,V...)         _SEP_##N##_F(V)
-#define _SEP_N_F(N,V...)          __SEP_N_F(N,V)
-#define _SEP_N_F_REF()            _SEP_N_F
-#define _SEP_1_F(p)               serial_print(p);
-#define _SEP_2_F(p,v)             serial_echopair(p,v);
-#define _SEP_3_F(p,v,V...)        _SEP_2_F(p,v); DEFER2(_SEP_N_F_REF)()(TWO_ARGS(V),V);
-#define SERIAL_ECHOF(V...)        do{ EVAL(_SEP_N_F(TWO_ARGS(V),V)); }while(0)
-
-// Print up to 20 pairs of values followed by newline. Odd elements must be FSTR_P, F(), or FPSTR().
-#define __SELP_N_F(N,V...)        _SELP_##N##_F(V)
-#define _SELP_N_F(N,V...)         __SELP_N_F(N,V)
-#define _SELP_N_F_REF()           _SELP_N_F
-#define _SELP_1_F(p)              serial_println(p)
-#define _SELP_2_F(p,v)            serial_echolnpair(p,v)
-#define _SELP_3_F(p,v,V...)       { _SEP_2_F(p,v); DEFER2(_SELP_N_F_REF)()(TWO_ARGS(V),V); }
-#define SERIAL_ECHOLNF(V...)      do{ EVAL(_SELP_N_F(TWO_ARGS(V),V)); }while(0)
 
 #ifdef AllowDifferentTypeInList
 
@@ -288,11 +258,8 @@ inline void serial_println(FSTR_P const fstr) { serial_println_P(FTOP(fstr)); }
 
 #endif
 
-// SERIAL_ECHO_F prints a floating point value with optional precision
-inline void SERIAL_ECHO_F(EnsureDouble x, int digit=2) { SERIAL_IMPL.print(x, digit); }
-
-#define SERIAL_ECHOPAIR_F_P(P,V...)   do{ serial_print_P(P); SERIAL_ECHO_F(V); }while(0)
-#define SERIAL_ECHOLNPAIR_F_P(P,V...) do{ SERIAL_ECHOPAIR_F_P(P,V); SERIAL_EOL(); }while(0)
+#define SERIAL_ECHOPAIR_F_P(P,V...) do{ serialprintPGM(P); SERIAL_ECHO_F(V); }while(0)
+#define SERIAL_ECHOLNPAIR_F_P(V...) do{ SERIAL_ECHOPAIR_F_P(V); SERIAL_EOL(); }while(0)
 
 #define SERIAL_ECHOPAIR_F_F(S,V...)   do{ serial_print(S); SERIAL_ECHO_F(V); }while(0)
 #define SERIAL_ECHOLNPAIR_F_F(S,V...) do{ SERIAL_ECHOPAIR_F_F(S,V); SERIAL_EOL(); }while(0)
@@ -300,8 +267,8 @@ inline void SERIAL_ECHO_F(EnsureDouble x, int digit=2) { SERIAL_IMPL.print(x, di
 #define SERIAL_ECHOPAIR_F(S,V...)     SERIAL_ECHOPAIR_F_F(F(S),V)
 #define SERIAL_ECHOLNPAIR_F(V...)     do{ SERIAL_ECHOPAIR_F(V); SERIAL_EOL(); }while(0)
 
-#define SERIAL_ECHO_MSG(V...)         do{ SERIAL_ECHO_START();  SERIAL_ECHOLNPGM(V); }while(0)
-#define SERIAL_ERROR_MSG(V...)        do{ SERIAL_ERROR_START(); SERIAL_ECHOLNPGM(V); }while(0)
+#define SERIAL_ECHO_MSG(V...)       do{ SERIAL_ECHO_START();  SERIAL_ECHOLNPGM(V); }while(0)
+#define SERIAL_ERROR_MSG(V...)      do{ SERIAL_ERROR_START(); SERIAL_ECHOLNPGM(V); }while(0)
 
 #define SERIAL_ECHO_SP(C)             serial_spaces(C)
 
@@ -316,27 +283,18 @@ inline void SERIAL_ECHO_F(EnsureDouble x, int digit=2) { SERIAL_IMPL.print(x, di
 //
 // Functions for serial printing from PROGMEM. (Saves loads of SRAM.)
 //
-inline void serial_echopair_P(PGM_P const pstr, serial_char_t v) { serial_print_P(pstr); SERIAL_CHAR(v.c); }
-inline void serial_echopair_P(PGM_P const pstr, float v)         { serial_print_P(pstr); SERIAL_DECIMAL(v); }
-inline void serial_echopair_P(PGM_P const pstr, double v)        { serial_print_P(pstr); SERIAL_DECIMAL(v); }
-//inline void serial_echopair_P(PGM_P const pstr, const char *v)   { serial_print_P(pstr); SERIAL_ECHO(v); }
-inline void serial_echopair_P(PGM_P const pstr, FSTR_P v)        { serial_print_P(pstr); SERIAL_ECHOF(v); }
+inline void serial_echopair_PGM(PGM_P const s_P, serial_char_t v) { serialprintPGM(s_P); SERIAL_CHAR(v.c); }
+
+inline void serial_echopair_PGM(PGM_P const s_P, float v)         { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
+inline void serial_echopair_PGM(PGM_P const s_P, double v)        { serialprintPGM(s_P); SERIAL_DECIMAL(v); }
+inline void serial_echopair_PGM(PGM_P const s_P, const char *v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
 // Default implementation for types without a specialization. Handles integers.
 template <typename T>
-inline void serial_echopair_P(PGM_P const pstr, T v) { serial_print_P(pstr); SERIAL_ECHO(v); }
+void serial_echopair_PGM(PGM_P const s_P, T v)   { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
-// Add a newline.
-template <typename T>
-inline void serial_echolnpair_P(PGM_P const pstr, T v) { serial_echopair_P(pstr, v); SERIAL_EOL(); }
-
-// Catch-all for __FlashStringHelper *
-template <typename T>
-inline void serial_echopair(FSTR_P const fstr, T v) { serial_echopair_P(FTOP(fstr), v); }
-
-// Add a newline to the serial output
-template <typename T>
-inline void serial_echolnpair(FSTR_P const fstr, T v) { serial_echolnpair_P(FTOP(fstr), v); }
+inline void serial_echopair_PGM(PGM_P const s_P, bool v)    { serial_echopair_PGM(s_P, (int)v); }
+inline void serial_echopair_PGM(PGM_P const s_P, void *v)   { serial_echopair_PGM(s_P, (uintptr_t)v); }
 
 void serial_echo_start();
 void serial_error_start();
@@ -347,11 +305,11 @@ void serialprint_truefalse(const bool tf);
 void serial_spaces(uint8_t count);
 
 void print_bin(const uint16_t val);
-void print_pos(LINEAR_AXIS_ARGS(const_float_t), FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
+void print_pos(LINEAR_AXIS_ARGS(const_float_t), PGM_P const prefix=nullptr, PGM_P const suffix=nullptr);
 
-inline void print_pos(const xyz_pos_t &xyz, FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr) {
+inline void print_pos(const xyz_pos_t &xyz, PGM_P const prefix=nullptr, PGM_P const suffix=nullptr) {
   print_pos(LINEAR_AXIS_ELEM(xyz), prefix, suffix);
 }
 
-#define SERIAL_POS(SUFFIX,VAR) do { print_pos(VAR, F("  " STRINGIFY(VAR) "="), F(" : " SUFFIX "\n")); }while(0)
-#define SERIAL_XYZ(PREFIX,V...) do { print_pos(V, F(PREFIX)); }while(0)
+#define SERIAL_POS(SUFFIX,VAR) do { print_pos(VAR, PSTR("  " STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n")); }while(0)
+#define SERIAL_XYZ(PREFIX,V...) do { print_pos(V, PSTR(PREFIX), nullptr); }while(0)

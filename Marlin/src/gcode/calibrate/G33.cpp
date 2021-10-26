@@ -115,14 +115,18 @@ static void print_calibration_settings(const bool end_stops, const bool tower_an
     print_signed_float(F("Ez"), delta_endstop_adj.c);
   }
   if (end_stops && tower_angles) {
-    SERIAL_ECHOLNPGM("  Radius:", delta_radius);
+    SERIAL_ECHOPGM("  Radius:", delta_radius);
+    SERIAL_EOL();
     SERIAL_CHAR('.');
     SERIAL_ECHO_SP(13);
   }
   if (tower_angles) {
-    print_signed_float(F("Tx"), delta_tower_angle_trim.a);
-    print_signed_float(F("Ty"), delta_tower_angle_trim.b);
-    print_signed_float(F("Tz"), delta_tower_angle_trim.c);
+    print_signed_float(PSTR("Tx"), delta_tower_angle_trim.a);
+    print_signed_float(PSTR("Ty"), delta_tower_angle_trim.b);
+    print_signed_float(PSTR("Tz"), delta_tower_angle_trim.c);
+  }
+  if ((!end_stops && tower_angles) || (end_stops && !tower_angles)) { // XOR
+    SERIAL_ECHOPGM("  Radius:", delta_radius);
   }
   if (end_stops != tower_angles)
     SERIAL_ECHOPGM("  Radius:", delta_radius);

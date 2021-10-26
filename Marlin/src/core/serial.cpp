@@ -73,8 +73,8 @@ void serial_print_P(PGM_P str) {
   while (const char c = pgm_read_byte(str++)) SERIAL_CHAR(c);
 }
 
-void serial_echo_start()  { static PGMSTR(echomagic, "echo:"); serial_print_P(echomagic); }
-void serial_error_start() { static PGMSTR(errormagic, "Error:"); serial_print_P(errormagic); }
+void serial_echo_start()  { static PGMSTR(echomagic, "echo:"); serialprintPGM(echomagic); }
+void serial_error_start() { static PGMSTR(errormagic, "Error:"); serialprintPGM(errormagic); }
 
 void serial_spaces(uint8_t count) { count *= (PROPORTIONAL_FONT_RATIO); while (count--) SERIAL_CHAR(' '); }
 
@@ -94,10 +94,10 @@ void print_bin(uint16_t val) {
   }
 }
 
-void print_pos(LINEAR_AXIS_ARGS(const_float_t), FSTR_P const prefix/*=nullptr*/, FSTR_P const suffix/*=nullptr*/) {
-  if (prefix) serial_print(prefix);
+void print_pos(LINEAR_AXIS_ARGS(const_float_t), PGM_P const prefix/*=nullptr*/, PGM_P const suffix/*=nullptr*/) {
+  if (prefix) serialprintPGM(prefix);
   SERIAL_ECHOPGM_P(
     LIST_N(DOUBLE(LINEAR_AXES), SP_X_STR, x, SP_Y_STR, y, SP_Z_STR, z, SP_I_STR, i, SP_J_STR, j, SP_K_STR, k)
   );
-  if (suffix) serial_print(suffix); else SERIAL_EOL();
+  if (suffix) serialprintPGM(suffix); else SERIAL_EOL();
 }

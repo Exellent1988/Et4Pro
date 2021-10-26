@@ -121,11 +121,13 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
         #if ENABLED(MKS_WIFI_MODULE)
           case wifiName:
             memcpy(uiCfg.wifi_name, ret_ta_txt, sizeof(uiCfg.wifi_name));
-            goto_previous_ui();
+            lv_clear_keyboard();
+            draw_return_ui();
             break;
           case wifiPassWord:
             memcpy(uiCfg.wifi_key, ret_ta_txt, sizeof(uiCfg.wifi_name));
-            goto_previous_ui();
+            lv_clear_keyboard();
+            draw_return_ui();
             break;
           case wifiConfig:
             ZERO(uiCfg.wifi_name);
@@ -157,7 +159,8 @@ static void lv_kb_event_cb(lv_obj_t *kb, lv_event_t event) {
           uint8_t buf[100];
           strncpy((char *)buf, ret_ta_txt, sizeof(buf));
           update_gcode_command(AUTO_LEVELING_COMMAND_ADDR, buf);
-          goto_previous_ui();
+          lv_clear_keyboard();
+          draw_return_ui();
           break;
         case GCodeCommand:
           if (ret_ta_txt[0] && !queue.ring_buffer.full(3)) {

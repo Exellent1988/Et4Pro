@@ -96,9 +96,9 @@ void write_to_lcd(const char * const cmsg) {
 }
 
 // {E:<msg>} is for error states.
-void set_lcd_error(FSTR_P const error, FSTR_P const component/*=nullptr*/) {
-  write_to_lcd(F("{E:"));
-  write_to_lcd(error);
+void set_lcd_error_P(PGM_P const error, PGM_P const component/*=nullptr*/) {
+  write_to_lcd_P(PSTR("{E:"));
+  write_to_lcd_P(error);
   if (component) {
     write_to_lcd(F(" "));
     write_to_lcd(component);

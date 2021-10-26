@@ -460,8 +460,8 @@ void Endstops::event_handler() {
     SERIAL_EOL();
 
     TERN_(HAS_STATUS_MESSAGE,
-      ui.status_printf(0,
-        F(S_FMT GANG_N_1(LINEAR_AXES, " %c") " %c"),
+      ui.status_printf_P(0,
+        PSTR(S_FMT GANG_N_1(LINEAR_AXES, " %c") " %c"),
         GET_TEXT(MSG_LCD_ENDSTOPS),
         LINEAR_AXIS_LIST(chrX, chrY, chrZ, chrI, chrJ, chrK), chrP
       )
@@ -483,8 +483,8 @@ void Endstops::event_handler() {
   #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
-static void print_es_state(const bool is_hit, FSTR_P const flabel=nullptr) {
-  if (flabel) SERIAL_ECHOF(flabel);
+static void print_es_state(const bool is_hit, PGM_P const label=nullptr) {
+  if (label) SERIAL_ECHOPGM_P(label);
   SERIAL_ECHOPGM(": ");
   SERIAL_ECHOLNF(is_hit ? F(STR_ENDSTOP_HIT) : F(STR_ENDSTOP_OPEN));
 }
@@ -567,7 +567,7 @@ void _O2 Endstops::report_states() {
     print_es_state(probe_switch_activated(), F(STR_PROBE_EN));
   #endif
   #if USES_Z_MIN_PROBE_PIN
-    print_es_state(PROBE_TRIGGERED(), F(STR_Z_PROBE));
+    print_es_state(PROBE_TRIGGERED(), PSTR(STR_Z_PROBE));
   #endif
   #if MULTI_FILAMENT_SENSOR
     #define _CASE_RUNOUT(N) case N: pin = FIL_RUNOUT##N##_PIN; state = FIL_RUNOUT##N##_STATE; break;
@@ -584,7 +584,7 @@ void _O2 Endstops::report_states() {
     }
     #undef _CASE_RUNOUT
   #elif HAS_FILAMENT_SENSOR
-    print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, F(STR_FILAMENT));
+    print_es_state(READ(FIL_RUNOUT1_PIN) != FIL_RUNOUT1_STATE, PSTR(STR_FILAMENT));
   #endif
 
   TERN_(BLTOUCH, bltouch._reset_SW_mode());

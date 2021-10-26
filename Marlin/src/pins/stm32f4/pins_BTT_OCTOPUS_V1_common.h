@@ -61,11 +61,7 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #if ENABLED(BLTOUCH)
-    #define Z_MIN_PROBE_PIN                 PB7
-  #else
-    #define Z_MIN_PROBE_PIN                 PC5   // Probe (Proximity switch) port
-  #endif
+  #define Z_MIN_PROBE_PIN                   PB7
 #endif
 
 //
@@ -239,6 +235,11 @@
 // Temperature Sensors
 //
 #define TEMP_BED_PIN                        PF3   // TB
+#if TEMP_SENSOR_0 == 20
+  #define TEMP_0_PIN                        PF8   // PT100 Connector
+#else
+  #define TEMP_0_PIN                        PF4   // TH0
+#endif
 #define TEMP_1_PIN                          PF5   // TH1
 #define TEMP_2_PIN                          PF6   // TH2
 #define TEMP_3_PIN                          PF7   // TH3
@@ -500,7 +501,7 @@
 #endif  // HAS_WIRED_LCD
 
 // Alter timing for graphical display
-#if IS_U8GLIB_ST7920
+#if ENABLED(U8GLIB_ST7920)
   #define BOARD_ST7920_DELAY_1               120
   #define BOARD_ST7920_DELAY_2                80
   #define BOARD_ST7920_DELAY_3               580

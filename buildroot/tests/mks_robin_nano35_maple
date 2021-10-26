@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 #
 # Build tests for MKS Robin nano with LibMaple STM32F1 HAL
 # (STM32F1 genericSTM32F103VE)

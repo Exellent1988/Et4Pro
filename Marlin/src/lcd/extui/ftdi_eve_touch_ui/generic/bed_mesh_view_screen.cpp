@@ -154,7 +154,7 @@ void BedMeshViewScreen::onMeshUpdate(const int8_t x, const int8_t y, const ExtUI
 void BedMeshViewScreen::doProbe() {
   GOTO_SCREEN(BedMeshViewScreen);
   mydata.count = 0;
-  injectCommands(F(BED_LEVELING_COMMANDS));
+  injectCommands_P(PSTR(BED_LEVELING_COMMANDS));
 }
 
 void BedMeshViewScreen::show() {

@@ -87,7 +87,7 @@ void stepper_driver_backward_report() {
       stepper_driver_backward_error(axis);
   };
 
-  #define REPORT_BACKWARD(axis, bit) TERN_(HAS_##axis##_ENABLE, _report_if_backward(F(STRINGIFY(axis)), bit))
+  #define REPORT_BACKWARD(axis, bit) TERN_(HAS_##axis##_ENABLE, _report_if_backward(PSTR(STRINGIFY(axis)), bit))
 
   REPORT_BACKWARD(X,   0);
   REPORT_BACKWARD(X2,  1);

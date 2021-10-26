@@ -177,7 +177,7 @@ void GcodeSuite::M360() {
   //
   // Per-Extruder settings
   //
-  config_line(F("NumExtruder"), EXTRUDERS);
+  config_line(PSTR("NumExtruder"), EXTRUDERS);
   #if HAS_EXTRUDERS
     LOOP_L_N(e, EXTRUDERS) {
       config_line_e(e, JERK_STR, TERN(HAS_LINEAR_E_JERK, planner.max_e_jerk[E_INDEX_N(e)], TERN(HAS_CLASSIC_JERK, planner.max_jerk.e, DEFAULT_EJERK)));

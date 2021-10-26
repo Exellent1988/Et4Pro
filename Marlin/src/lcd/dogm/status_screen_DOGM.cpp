@@ -191,7 +191,7 @@
 
 FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, const uint8_t ty) {
   if (temp < 0)
-    lcd_put_u8str(tx - 3 * (INFO_FONT_WIDTH) / 2 + 1, ty, F("err"));
+    lcd_put_u8str(tx - 3 * (INFO_FONT_WIDTH) / 2 + 1, ty, "err");
   else {
     const char *str = i16tostr3rj(temp);
     const uint8_t len = str[0] != ' ' ? 3 : str[1] != ' ' ? 2 : 1;
@@ -879,7 +879,7 @@ void MarlinUI::draw_status_screen() {
         if (show_e_total) {
           #if ENABLED(LCD_SHOW_E_TOTAL)
             _draw_axis_value(E_AXIS, xstring, true);
-            lcd_put_u8str(F("       "));
+            lcd_put_u8str_P(PSTR("       "));
           #endif
         }
         else {

@@ -67,7 +67,7 @@ inline void L6470_say_status(const L64XX_axis_t axis) {
     SERIAL_ECHOPGM("   Last Command: ");
     if (!(sh.STATUS_AXIS & sh.STATUS_AXIS_WRONG_CMD)) SERIAL_ECHOPGM("IN");
     SERIAL_ECHOPGM("VALID    ");
-    SERIAL_ECHOF(sh.STATUS_AXIS & sh.STATUS_AXIS_NOTPERF_CMD ?  F("COMPLETED    ") : F("Not PERFORMED"));
+    SERIAL_ECHOPGM_P(sh.STATUS_AXIS & sh.STATUS_AXIS_NOTPERF_CMD ?  PSTR("COMPLETED    ") : PSTR("Not PERFORMED"));
     SERIAL_ECHOPGM("\n...THERMAL: ", !(sh.STATUS_AXIS & sh.STATUS_AXIS_TH_SD) ? "SHUTDOWN       " : !(sh.STATUS_AXIS & sh.STATUS_AXIS_TH_WRN) ? "WARNING        " : "OK             ");
   }
   SERIAL_ECHOPGM("   OVERCURRENT:"); echo_yes_no((sh.STATUS_AXIS & sh.STATUS_AXIS_OCD) == 0);

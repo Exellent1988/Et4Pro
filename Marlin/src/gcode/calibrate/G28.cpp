@@ -269,8 +269,8 @@ void GcodeSuite::G28() {
   #endif
 
   #if HAS_HOMING_CURRENT
-    auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
-      DEBUG_ECHOF(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b);
+    auto debug_current = [](PGM_P const s, const int16_t a, const int16_t b) {
+      DEBUG_ECHOPGM_P(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b);
     };
     #if HAS_CURRENT_HOME(X)
       const int16_t tmc_save_current_X = stepperX.getMilliamps();
@@ -296,6 +296,11 @@ void GcodeSuite::G28() {
       const int16_t tmc_save_current_Z = stepperZ.getMilliamps();
       stepperZ.rms_current(Z_CURRENT_HOME);
       if (DEBUGGING(LEVELING)) debug_current(F("Z"), tmc_save_current_Z, Z_CURRENT_HOME);
+    #endif
+    #if HAS_CURRENT_HOME(Z) && ENABLED(DELTA)
+      const int16_t tmc_save_current_Z = stepperZ.getMilliamps();
+      stepperZ.rms_current(Z_CURRENT_HOME);
+      if (DEBUGGING(LEVELING)) debug_current(PSTR("Z"), tmc_save_current_Z, Z_CURRENT_HOME);
     #endif
   #endif
 
