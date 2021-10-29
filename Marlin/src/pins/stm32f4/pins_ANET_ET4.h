@@ -113,7 +113,6 @@
 //
 #define TEMP_0_PIN                          PA1
 #define TEMP_BED_PIN                        PA4
-#define TEMP_BOARD_PIN                      PA1
 
 //
 // Heaters
